@@ -32,7 +32,8 @@ func TestD1(t *testing.T) {
 
 		for _, c := range cases {
 			t.Run(c.Desc, func(t *testing.T) {
-				actual := GetNextPosition(c.Position, c.Rotation)
+				rot, value, _ := ParseRotation(c.Rotation)
+				actual := GetNextPosition(c.Position, rot, value)
 				assert.Equal(t, c.Expected, actual)
 			})
 		}
@@ -66,14 +67,13 @@ func TestD1(t *testing.T) {
 		}
 	})
 
-	t.Run("should get passowrd", func(t *testing.T) {
-		type PassTestCase = struct {
-			Desc      string
-			Position  int
-			Rotations []string
-			Expected  int
-		}
-
+	type PassTestCase = struct {
+		Desc      string
+		Position  int
+		Rotations []string
+		Expected  int
+	}
+	t.Run("should solve part 1", func(t *testing.T) {
 		cases := []PassTestCase{
 			{"simple L1R1L1R1 from 0 should give 2", 0, []string{"L1", "R1", "L1", "R1"}, 2},
 			{"R10L1L1L3 from 95 should give 1", 95, []string{"R10", "L1", "L1", "L3"}, 1},
@@ -83,7 +83,21 @@ func TestD1(t *testing.T) {
 
 		for _, c := range cases {
 			t.Run(c.Desc, func(t *testing.T) {
-				actual := GetPassword(c.Position, c.Rotations)
+				actual := SolvePart1(c.Position, c.Rotations)
+				assert.Equal(t, c.Expected, actual)
+			})
+		}
+	})
+
+	t.Run("should solve part 2", func(t *testing.T) {
+		cases := []PassTestCase{
+			{"R1000 from 50 should give 10", 50, []string{"R1000"}, 10},
+			{"example from README should give 6", 50, []string{"L68", "L30", "R48", "L5", "R60", "L55", "L1", "L99", "R14", "L82"}, 6},
+		}
+
+		for _, c := range cases {
+			t.Run(c.Desc, func(t *testing.T) {
+				actual := SolvePart2(c.Position, c.Rotations)
 				assert.Equal(t, c.Expected, actual)
 			})
 		}

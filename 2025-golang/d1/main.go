@@ -11,6 +11,7 @@ import (
 
 const INPUT = "input.txt"
 const INITIAL_POSITION = 50
+const LENGTH = 100
 
 type Rotation int
 
@@ -40,14 +41,9 @@ func GetLinesFromInput(inputFileName string) []string {
 	return lines
 }
 
-func GetNextPosition(current int, rotation string) int {
-	rot, value, err := ParseRotation(rotation)
+func GetNextPosition(current int, rotation Rotation, value int) int {
 
-	if err != nil {
-		return -1
-	}
-
-	return (current + ((value*int(rot))+100)%100) % 100
+	return (current + ((value*int(rotation))+LENGTH)%LENGTH) % LENGTH
 }
 
 var rotationsMap = map[string]Rotation{
@@ -75,10 +71,39 @@ func ParseRotation(rotation string) (Rotation, int, error) {
 	return rot, value, nil
 }
 
-func GetPassword(position int, rotations []string) int {
+func SolvePart1(position int, rotations []string) int {
 	var password int
 	for _, r := range rotations {
-		position = GetNextPosition(position, r)
+		rot, value, _ := ParseRotation(r)
+		position = GetNextPosition(position, rot, value)
+		if position == 0 {
+			password++
+		}
+	}
+
+	return password
+}
+
+func GetTimesPassingZero(position int, rotation Rotation, value int) int {
+	var timesPassingZero int
+	if rotation == Right {
+		timesPassingZero = (position + value - 1) / LENGTH
+	} else {
+		if value > position && position > 0 {
+			timesPassingZero = 1 + (value-position-1)/LENGTH
+		}
+	}
+
+	return timesPassingZero
+}
+
+func SolvePart2(position int, rotations []string) int {
+	var password int
+	for _, r := range rotations {
+		rot, value, _ := ParseRotation(r)
+		password += GetTimesPassingZero(position, rot, value)
+		position = GetNextPosition(position, rot, value)
+
 		if position == 0 {
 			password++
 		}
@@ -91,6 +116,6 @@ func main() {
 	position := INITIAL_POSITION
 	rotations := GetLinesFromInput(INPUT)
 
-	password := GetPassword(position, rotations)
+	password := SolvePart2(position, rotations)
 	fmt.Println(password)
 }
